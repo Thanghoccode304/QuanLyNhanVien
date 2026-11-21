@@ -400,17 +400,12 @@
 		new WOW().init();
 	</script>  -->
 
-    <!-- <script src="js/modal.js"></script> -->
+    <!-- Models -->
+    <script src="models/staff.js"></script>
+    <script src="models/validation.js"></script>
+    <script src="models/action.js"></script>
 
-    <!-- Main controller (ES module) -->
-    <script type="module" src="controller/main.js"></script>
-
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $("#sidebarCollapse").on("click", function () {
-          $("#sidebar").toggleClass("active");
-        });
-      });
-    </script>
+    <!-- Main controller -->
+    <script src="controller/main.js"></script>
   </body>
 </html>

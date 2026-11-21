@@ -6,10 +6,10 @@ class Validation {
     return "";
   }
 
-  // Họ tên: chỉ chữ cái và khoảng trắng, không để trống
+  // Họ tên: chỉ chữ cái (kể cả tiếng Việt) và khoảng trắng, không để trống
   validateName(name) {
     if (!name || name.trim() === "") return "Họ tên không được để trống.";
-    if (!/^[a-zA-ZÀ-ỹ\s]+$/u.test(name.trim())) return "Họ tên chỉ được chứa chữ cái.";
+    if (!/^[\p{L}\s]+$/u.test(name.trim())) return "Họ tên chỉ được chứa chữ cái.";
     return "";
   }
 
@@ -27,7 +27,7 @@ class Validation {
     if (pw.length < 6 || pw.length > 10) return "Mật khẩu phải từ 6-10 ký tự.";
     if (!/[0-9]/.test(pw)) return "Mật khẩu phải chứa ít nhất 1 chữ số.";
     if (!/[A-Z]/.test(pw)) return "Mật khẩu phải chứa ít nhất 1 chữ hoa.";
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw)) return "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.";
+    if (!/[!@#$%^&*()\-_=+\[\]{};':"\\|,.<>\/?]/.test(pw)) return "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.";
     return "";
   }
 
@@ -52,8 +52,8 @@ class Validation {
   // Chức vụ hợp lệ
   validatePosition(position) {
     const valid = ["Giám đốc", "Trưởng Phòng", "Nhân Viên"];
-    if (!position || position.trim() === "" || !valid.includes(position)) {
-      return "Vui lòng chọn chức vụ hợp lệ (Giám đốc, Trưởng Phòng, Nhân Viên).";
+    if (!position || !valid.includes(position.trim())) {
+      return "Vui lòng chọn chức vụ hợp lệ.";
     }
     return "";
   }
@@ -67,30 +67,28 @@ class Validation {
     return "";
   }
 
-  // Validate toàn bộ form, trả về true nếu hợp lệ
+  // Validate toàn bộ, trả về true nếu hợp lệ
   validateAll(account, name, email, password, date, salary, position, hour) {
     const errors = {
-      account: this.validateAccount(account),
-      name: this.validateName(name),
-      email: this.validateEmail(email),
+      account:  this.validateAccount(account),
+      name:     this.validateName(name),
+      email:    this.validateEmail(email),
       password: this.validatePassword(password),
-      date: this.validateDate(date),
-      salary: this.validateSalary(salary),
+      date:     this.validateDate(date),
+      salary:   this.validateSalary(salary),
       position: this.validatePosition(position),
-      hour: this.validateHour(hour),
+      hour:     this.validateHour(hour),
     };
 
-    // Hiển thị thông báo lỗi
-    document.getElementById("tbTKNV").innerText = errors.account;
-    document.getElementById("tbTen").innerText = errors.name;
-    document.getElementById("tbEmail").innerText = errors.email;
+    document.getElementById("tbTKNV").innerText    = errors.account;
+    document.getElementById("tbTen").innerText     = errors.name;
+    document.getElementById("tbEmail").innerText   = errors.email;
     document.getElementById("tbMatKhau").innerText = errors.password;
-    document.getElementById("tbNgay").innerText = errors.date;
+    document.getElementById("tbNgay").innerText    = errors.date;
     document.getElementById("tbLuongCB").innerText = errors.salary;
-    document.getElementById("tbChucVu").innerText = errors.position;
-    document.getElementById("tbGiolam").innerText = errors.hour;
+    document.getElementById("tbChucVu").innerText  = errors.position;
+    document.getElementById("tbGiolam").innerText  = errors.hour;
 
-    // Hợp lệ khi tất cả lỗi đều là chuỗi rỗng
     return Object.values(errors).every((e) => e === "");
   }
 
@@ -101,5 +99,3 @@ class Validation {
     });
   }
 }
-
-export default Validation;

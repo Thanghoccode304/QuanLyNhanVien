@@ -1,21 +1,16 @@
-import Staff from "./../models/staff.js";
-import Action from "./../models/action.js";
-import Validation from "./../models/validation.js";
-
 const validation = new Validation();
 const action = new Action();
 
-let editingAccount = null; // Lưu account đang được sửa
+let editingAccount = null;
 
-// ===================== KHỞI TẠO =====================
-document.addEventListener("DOMContentLoaded", () => {
-  // Datepicker (jQuery UI)
-  if (typeof $ !== "undefined" && $.fn.datepicker) {
-    $("#datepicker").datepicker({ dateFormat: "mm/dd/yy" });
-  }
+$(document).ready(function () {
+  // Sidebar toggle
+  $("#sidebarCollapse").on("click", function () {
+    $("#sidebar").toggleClass("active");
+  });
 
-  // Ẩn btn Cập nhật khi mở modal Thêm mới
-  document.getElementById("btnThem").addEventListener("click", () => {
+  // ========== MỞ MODAL THÊM MỚI ==========
+  $("#btnThem").on("click", function () {
     action.clearForm();
     validation.clearErrors();
     editingAccount = null;
@@ -24,88 +19,138 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btnCapNhat").style.display = "none";
   });
 
-  // ===================== THÊM NHÂN VIÊN =====================
-  document.getElementById("btnThemNV").addEventListener("click", () => {
-    const account  = document.getElementById("tknv").value;
-    const name     = document.getElementById("name").value;
-    const email    = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const date     = document.getElementById("datepicker").value;
-    const salary   = document.getElementById("luongCB").value;
-    const position = document.getElementById("chucvu").value;
-    const hour     = document.getElementById("gioLam").value;
+  // ========== THÊM NHÂN VIÊN ==========
+  $("#btnThemNV").on("click", function () {
+    const account = $("#tknv").val().trim();
+    const name = $("#name").val().trim();
+    const email = $("#email").val().trim();
+    const password = $("#password").val().trim();
+    const date = $("#datepicker").val().trim();
+    const salary = $("#luongCB").val().trim();
+    const position = $("#chucvu").val();
+    const hour = $("#gioLam").val().trim();
 
-    const isValid = validation.validateAll(account, name, email, password, date, salary, position, hour);
-    if (!isValid) return;
+    // Debug - mở F12 Console để xem
+    console.log("=== THÊM NV ===", {
+      account,
+      name,
+      email,
+      password,
+      date,
+      salary,
+      position,
+      hour,
+    });
+    console.log("Lỗi TK:", validation.validateAccount(account));
+    console.log("Lỗi Tên:", validation.validateName(name));
+    console.log("Lỗi Email:", validation.validateEmail(email));
+    console.log("Lỗi MK:", validation.validatePassword(password));
+    console.log("Lỗi Ngày:", validation.validateDate(date));
+    console.log("Lỗi Lương:", validation.validateSalary(salary));
+    console.log("Lỗi CV:", validation.validatePosition(position));
+    console.log("Lỗi Giờ:", validation.validateHour(hour));
 
-    // Kiểm tra tài khoản đã tồn tại chưa
-    if (action.getStaffByAccount(account.trim())) {
+    if (
+      !validation.validateAll(
+        account,
+        name,
+        email,
+        password,
+        date,
+        salary,
+        position,
+        hour,
+      )
+    )
+      return;
+
+    if (action.getStaffByAccount(account)) {
       document.getElementById("tbTKNV").innerText = "Tài khoản đã tồn tại.";
       return;
     }
 
-    const staff = new Staff(account.trim(), name.trim(), email.trim(), password.trim(), date.trim(), salary, position, hour);
+    const staff = new Staff(
+      account,
+      name,
+      email,
+      password,
+      date,
+      salary,
+      position,
+      hour,
+    );
     action.addStaff(staff);
     action.renderTable(action.staffList);
     action.clearForm();
     validation.clearErrors();
-
-    // Đóng modal
     $("#myModal").modal("hide");
   });
 
-  // ===================== CẬP NHẬT NHÂN VIÊN =====================
-  document.getElementById("btnCapNhat").addEventListener("click", () => {
-    const account  = editingAccount; // Giữ nguyên account cũ
-    const name     = document.getElementById("name").value;
-    const email    = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const date     = document.getElementById("datepicker").value;
-    const salary   = document.getElementById("luongCB").value;
-    const position = document.getElementById("chucvu").value;
-    const hour     = document.getElementById("gioLam").value;
+  // ========== CẬP NHẬT NHÂN VIÊN ==========
+  $("#btnCapNhat").on("click", function () {
+    const account = editingAccount;
+    const name = $("#name").val().trim();
+    const email = $("#email").val().trim();
+    const password = $("#password").val().trim();
+    const date = $("#datepicker").val().trim();
+    const salary = $("#luongCB").val().trim();
+    const position = $("#chucvu").val();
+    const hour = $("#gioLam").val().trim();
 
-    const isValid = validation.validateAll(account, name, email, password, date, salary, position, hour);
-    if (!isValid) return;
+    if (
+      !validation.validateAll(
+        account,
+        name,
+        email,
+        password,
+        date,
+        salary,
+        position,
+        hour,
+      )
+    )
+      return;
 
-    const updatedStaff = new Staff(account, name.trim(), email.trim(), password.trim(), date.trim(), salary, position, hour);
+    const updatedStaff = new Staff(
+      account,
+      name,
+      email,
+      password,
+      date,
+      salary,
+      position,
+      hour,
+    );
     action.updateStaff(account, updatedStaff);
     action.renderTable(action.staffList);
     action.clearForm();
     validation.clearErrors();
     editingAccount = null;
-
     $("#myModal").modal("hide");
   });
 
-  // ===================== TÌM KIẾM THEO LOẠI =====================
-  document.getElementById("btnTimNV").addEventListener("click", () => {
-    const keyword = document.getElementById("searchName").value;
-    const result = action.searchByRank(keyword);
-    action.renderTable(result);
+  // ========== TÌM KIẾM THEO LOẠI ==========
+  $("#btnTimNV").on("click", function () {
+    action.renderTable(action.searchByRank($("#searchName").val()));
   });
 
-  // Tìm kiếm realtime khi gõ
-  document.getElementById("searchName").addEventListener("input", () => {
-    const keyword = document.getElementById("searchName").value;
-    const result = action.searchByRank(keyword);
-    action.renderTable(result);
+  $("#searchName").on("input", function () {
+    action.renderTable(action.searchByRank($(this).val()));
   });
 
-  // Render bảng lần đầu (rỗng)
+  // Render bảng lần đầu
   action.renderTable(action.staffList);
 });
 
-// ===================== XÓA NHÂN VIÊN =====================
-// Dùng window để gọi từ onclick trong HTML
-window.handleDelete = function (account) {
-  if (!confirm(`Bạn có chắc muốn xóa nhân viên có tài khoản: ${account}?`)) return;
+// ========== XÓA NHÂN VIÊN ==========
+function handleDelete(account) {
+  if (!confirm("Bạn có chắc muốn xóa nhân viên: " + account + "?")) return;
   action.deleteStaff(account);
   action.renderTable(action.staffList);
-};
+}
 
-// ===================== SỬA NHÂN VIÊN =====================
-window.handleEdit = function (account) {
+// ========== SỬA NHÂN VIÊN ==========
+function handleEdit(account) {
   const staff = action.getStaffByAccount(account);
   if (!staff) return;
 
@@ -118,4 +163,4 @@ window.handleEdit = function (account) {
   document.getElementById("btnCapNhat").style.display = "inline-block";
 
   $("#myModal").modal("show");
-};
+}

@@ -16,7 +16,7 @@ class Staff {
   calculateSalary() {
     if (this.position === "Giám đốc") return this.salary * 3;
     if (this.position === "Trưởng Phòng") return this.salary * 2;
-    return this.salary * 1; // Nhân viên
+    return this.salary * 1; // Nhân Viên
   }
 
   // Xếp loại theo giờ làm
@@ -27,5 +27,3 @@ class Staff {
     return "Trung bình";
   }
 }
-
-export default Staff;
